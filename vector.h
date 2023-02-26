@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <math.h>
 
-#include "vector.cpp"
+#define Vec3 Vector<float, 3>
 
 template <typename T, size_t N> class Vector {
     
@@ -56,11 +56,16 @@ template <typename T, size_t N> class Vector {
         }
 
         float length() {
+            return (T) sqrt(length_squared);
+        }
+
+        float length_squared() {
             T sum = 0;
             for (int i = 0; i < N; i++) {
                 sum += elements[i];
             }
-            return (T) sqrt(sum);
+
+            return sum;
         }
         
 
@@ -122,7 +127,5 @@ template <typename T, size_t N> class Vector {
         }
 
 };
-
-
 
 #endif

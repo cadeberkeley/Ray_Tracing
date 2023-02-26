@@ -1,22 +1,23 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include "vec3.h"
+#include "vector.h"
 
-class ray {
+class Ray {
     public:
-        point3 origin;
-        vec3 dir;
+        Vec3 origin, dir;
+        Vec3 color;
 
-        ray() {}
-        ray(const point3& o, const vec3& d) {
+        ray(const Vec3& o, const Vec3& d) {
             origin = o;
             dir = d;
+            color = Vec3<float, 3>::new(0.0, 0.0, 0.0);
         }
 
         point3 at(float t) {
             return origin + t * dir;
         }
+
 };
 
 #endif
