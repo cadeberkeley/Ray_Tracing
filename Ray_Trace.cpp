@@ -1,5 +1,8 @@
 #include "color.h"
-#include "Vec3.h"
+#include "vector.h"
+//#include "vec3.h"
+#include "scene_object.h"
+#include "ray.h"
 
 #include <iostream>
 #include <fstream>
@@ -14,40 +17,53 @@ using namespace std;
 
 
 int main() {
-    const auto ASPECT_RATIO = 16.0/9.0;
+    const float ASPECT_RATIO = 16.0/9.0;
     const int IMG_WIDTH  = 400;
     const int IMG_HEIGHT = static_cast<int>(IMG_WIDTH / ASPECT_RATIO);
 
     // Camera
 
-    auto viewport_height = 2.0;
-    auto viewport_width = aspect_ratio * viewport_height;
-    auto focal_length = 1.0;
+    float viewport_height = 2.0;
+    float viewport_width = ASPECT_RATIO * viewport_height;
+    float focal_length = 5.0;
 
-    auto origin = point3(0, 0, 0);
-    auto horizontal = Vec3(viewport_width, 0, 0);
-    auto vertical = Vec3(0, viewport_height, 0);
-    auto lower_left_corner = origin - horizontal/2 - vertical/2 - Vec3(0, 0, focal_length);
+    Vec3 origin = newVec3(0, 0, 0);
+    Vec3 horizontal = newVec3(viewport_width, 0, 0);
+    Vec3 vertical = newVec3(0, viewport_height, 0);
+    Vec3 lower_left_corner = origin - horizontal/2 - vertical/2 + newVec3(0, 0, focal_length);
+    cout << lower_left_corner;
 
     // Output file setup
     ofstream img_file;
-    img_file.open("Ray_Trace.ppm");
+    img_file.open("sphere_tests.ppm");
     img_file << "P3\n" << IMG_WIDTH << ' ' << IMG_HEIGHT << "\n255\n";
 
     // Scene Setup
-    list<SceneObject> scene_objs;
-    scene_objs.push_front(Sphere);
-    list<SceneObject>::iterator obj_iter;
+    list<SceneObject*> scene_objs;
+    scene_objs.push_front(new Sphere(1.0, newVec3(0.0, 0.0, 10.0)));
 
     // Render
-    for (int x = 0; x < IMG_WIDTH; x++) {
-        cout << "\rScanlines remaining: " << x << ' ' << std::flush;
-        for (int y = 0; y < IMG_HEIGHT; y++) {
-            ray r(origin, lower_left_corner + Vec3((float) x, (float) y, 0.0))
-            for (obj_iter = scene_objs.begin(); obj_iter != scene_objs.end(); ++obj_iter) {
+    for (int y = 0; y < IMG_HEIGHT; y++) {
+        cout << "\rScanlines remaining: " << y << ' ' << std::flush;
+        for (int x = 0; x < IMG_WIDTH; x++) {
+            Ray r(origin, lower_left_corner + newVec3({(float) x/IMG_WIDTH * viewport_width, (float) y/IMG_HEIGHT * viewport_height, 0.0}));
+            //cout << lower_left_corner + newVec3({(float) x, (float) y, 0.0}) << ", ";
+            //cout << r.dir << endl;
+            list<SceneObject*>::iterator obj_iter;
 
+            bool intersect = false;
+
+            for (obj_iter = scene_objs.begin(); obj_iter != scene_objs.end(); ++obj_iter) {
+                if ((*obj_iter)->intersect(r) > 0) {
+                    write_color(img_file, r.color);
+                    intersect = true;
+                    continue;
+                }
             }
-            color px_color(float(x)/(IMG_WIDTH - 1), float(y)/(IMG_HEIGHT - 1), 0.25);
+
+            if (intersect) continue;
+            Vec3 px_color = newVec3(float(x)/float(IMG_WIDTH - 1), float(y)/float(IMG_HEIGHT - 1), 0.25);
+
             write_color(img_file, px_color);
         }
     }

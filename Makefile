@@ -4,13 +4,13 @@ OUTPUT_FILE := vector_test.out
 
 raytrace: 
 	@echo "Compiling Ray_Trace.cpp"
-	g++ -o ./Ray_Trace.out ./Ray_Trace.cpp
+	g++ -std=c++14 -o ./Ray_Trace.out ./Ray_Trace.cpp
 	@echo "Running Ray_Trace.out"
 	./Ray_Trace.out
 
 run: $(FILE)
 	@echo "Compiling "$(SRC_TARGET)
-	g++ -o ./$(OUTPUT_FILE) ./$(SRC_TARGET)
+	g++ -std=c++14 -o ./$(OUTPUT_FILE) ./$(SRC_TARGET)
 	@echo "Running "$(OUTPUT_FILE)
 	./$(OUTPUT_FILE)
 

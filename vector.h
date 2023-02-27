@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <math.h>
 
+#define newVec3(f1, f2, f3) Vector<float, 3>({f1, f2, f3})
 #define Vec3 Vector<float, 3>
 
 template <typename T, size_t N> class Vector {
@@ -33,7 +34,9 @@ template <typename T, size_t N> class Vector {
         T elements [N];
 
         Vector() {
-            elements = new T[N];
+            for (int i=0; i < N; i++) {
+                elements[i] = (T) 0;
+            }
         }
 
         Vector(T (&elems)[N]) {
@@ -41,9 +44,22 @@ template <typename T, size_t N> class Vector {
                 elements[i] = elems[i];
             }
         }
+/*
+        Vector(std::vector<T> elems) {
+            std::copy(elems.begin(), elems.end(), elements);
+        }
+*/
+
+        Vector(std::initializer_list<T> elems) {
+            int i = 0;
+            typename std::initializer_list<T>::iterator it;
+            for (it = elems.begin() ; it != elems.end() ; ++it) {
+                elements[i++] = *it;
+            }
+        }
 
 
-        T dot(Vector<T, N> other) {
+        T dot(Vector<T, N> other) const {
             return Vector<T, N>::dot(*this, other);
         }
 
@@ -51,18 +67,18 @@ template <typename T, size_t N> class Vector {
             return Vector<T, N>::cross(*this, other);
         }
 
-        Vector normalized() {
+        Vector normalized() const {
             return *this / length();
         }
 
-        float length() {
-            return (T) sqrt(length_squared);
+        float length() const {
+            return (T) sqrt(length_squared());
         }
 
-        float length_squared() {
+        float length_squared() const {
             T sum = 0;
             for (int i = 0; i < N; i++) {
-                sum += elements[i];
+                sum += elements[i] * elements[i];
             }
 
             return sum;
@@ -101,6 +117,11 @@ template <typename T, size_t N> class Vector {
         }
 
         friend Vector operator*(Vector v, const T scalar) {
+            v *= scalar;
+            return v;
+        }
+
+        friend Vector operator*(const T scalar, Vector v) {
             v *= scalar;
             return v;
         }
